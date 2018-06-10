@@ -10,11 +10,7 @@ describe('hydration', function () {
 
     beforeEach(() => {
 
-        return sql`CREATE TABLE 
-                    tests (
-                      country VARCHAR(100),
-                      name VARCHAR(100),
-                      value INTEGER)`
+        return sql`CREATE TABLE tests (country VARCHAR(100), name VARCHAR(100), value INTEGER)`
             .then(() => {
                 return sql`INSERT INTO tests VALUES 
                         ('USA', 'Dan', 1), 
