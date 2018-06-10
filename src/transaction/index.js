@@ -3,10 +3,11 @@
 import Lego from '../lego/index.js';
 import { getSingleton, Driver } from '../driver/index.js';
 import type { PgClient } from '../driver/index.js';
+import type { MysqlClient } from '../driver/index.js';
 
 export default class Transaction {
 	driver: Driver;
-	client: ?PgClient;
+	client: ?PgClient | ?MysqlClient;
 	queue: Lego[];
 	constructor(driver: Driver) {
 		this.driver = driver;
@@ -102,7 +103,7 @@ export function createTransaction(callback: TransactionCallback) {
 					// Then we continue with the return value, which is a promise. After the promise,
 					// new queries may be queued. We wait to resolve the promise and again execute
 					// any queued queries. Previous queries were cleared by the
-					.then(() => transaction.execAll())
+					// .then(() => transaction.execAll())
 					.then(() => {
 						return returnValue;
 					});

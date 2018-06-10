@@ -3,28 +3,19 @@
 import pg from 'pg';
 import url from 'url';
 
+import type Client from '../index'
+
 export function setPoolIdleTimeout(timeout: number) {
 	pg.defaults.poolIdleTimeout = timeout;
 }
 
-type PgResult = {
-	oid: ?number;
-	fields: string[];
-	rowCount: number;
-	rows: Object[];
-}
-
-export type PgClient = {
-	query: (text: string, parameters: any[]) => Promise<PgResult>;
-	release: (error: ?Error) => void;
-}
-
-type PgPool = {
-	connect: () => Promise<PgClient>;
+export type PgPool = {
+	connect: () => Promise<Client>;
 }
 
 export class PostgresDriver {
 	pool: PgPool;
+
 	constructor(databaseURL: string, options: Object) {
 		this.createPool(databaseURL, options);
 	}
@@ -40,18 +31,18 @@ export class PostgresDriver {
 			host: hostname,
 			port: port,
 			database: (pathname || '').slice(1),
-			ssl: process.env.LEGO_DISABLE_SSL !== 'true',
+			ssl: process.env.LEGO_DISABLE_SSL !== 'true'
 		};
 
 		const internal = pg.native ? pg.native : pg;
 		this.pool = new internal.Pool(config);
 
-		this.pool.on('error', () => {
-			//
+		this.pool.on('error', (err) => {
+			console.log(err)
 		});
 	}
 
-	query(client: PgClient, text: string, parameters: any[]): Promise<number|any[]> {
+	query(client: Client, text: string, parameters: any[]): Promise<number|any[]> {
 		return client.query(text, parameters)
 			.then((result) => {
 				if ((result.oid === 0 || isNaN(result.oid) || result.oid === null) && (!result.fields || result.fields.length === 0)) {
@@ -62,7 +53,7 @@ export class PostgresDriver {
 				}
 			})
 			.catch((error) => {
-				error.query = text;
+                error.query = text;
 				return Promise.reject(error);
 			});
 	}
@@ -94,11 +85,11 @@ export class PostgresDriver {
 			});
 	}
 
-	commitTransaction(client: PgClient) {
+	commitTransaction(client: Client) {
 		return this.query(client, 'COMMIT', []);
 	}
 
-	rollbackTransaction(client: PgClient) {
+	rollbackTransaction(client: Client) {
 		return this.query(client, 'ROLLBACK', []);
 	}
 }

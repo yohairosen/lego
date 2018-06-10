@@ -156,7 +156,8 @@ export default class Lego {
 			const query = this.toQuery();
 
 			if (this.transaction) {
-				this.promise = this.transaction.getDriver().query(this.transaction && this.transaction.getClient(), query.text, query.parameters);
+				// console.log(query.text, query.parameters)
+				this.promise = this.transaction.getDriver().query(this.transaction.getClient(), query.text, query.parameters);
 			}
 			else {
 				const driver = getSingleton();

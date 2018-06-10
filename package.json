@@ -6,7 +6,8 @@
   "jsnext:main": "src/index.js",
   "scripts": {
     "build": "babel src -d lib",
-    "coverage": "istanbul cover _mocha -- --compilers js:babel-register --recursive ./test/*.js",
+    "coverage:mysql": "DATABASE_URL=mysql://root:jocha138@localhost/lego_test istanbul cover _mocha -- --compilers js:babel-register --recursive ./test/*.js",
+    "coverage:pg": "LEGO_DISABLE_SSL=true DATABASE_URL=pg://localhost/test istanbul cover _mocha -- --compilers js:babel-register --recursive ./test/*.js",
     "test": "NODE_ENV=test mocha --compilers js:babel-register --reporter spec ./test/*.js",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "bench": "node bench/simple.js"
@@ -61,6 +62,7 @@
     "debug": "^2.2.0",
     "dotenv": "^1.2.0",
     "minimist": "^1.2.0",
+    "mysql": "^2.15.0",
     "pg": "^6.1.0"
   }
 }
