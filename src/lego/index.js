@@ -12,6 +12,24 @@ const hydration = require('nesthydrationjs')();
 const PREVENT_EXTRA_SPACE_CHARACTERS_INPUT = new Set([' ', ')', ',']);
 const PREVENT_EXTRA_SPACE_CHARACTERS_TOKENS = new Set([' ', '(']);
 
+class NestPromise extends Promise {
+
+    constructor(executor) {
+        super((resolve, reject) => {
+            return executor(resolve, reject);
+        });
+    }
+
+    then(onFulfilled, onRejected) {
+        const returnValue = super.then(onFulfilled, onRejected);
+        return returnValue.then(res => this.isFirst ? res[0] : res)
+    }
+
+    first() {
+        this.isFirst = true;
+    }
+}
+
 export default class Lego {
     transaction: ?Transaction = null;
     promise: ?Promise<*> = null;
@@ -126,10 +144,12 @@ export default class Lego {
     }
 
     nest() {
-        return this.execute()
-            .then((rows) => {
-                return hydration.nest(rows);
-            });
+        return new NestPromise((resolve, reject) => {
+            this.execute()
+                .then((rows) => {
+                    resolve(hydration.nest(rows))
+                });
+        });
     }
 
     transacting(transaction: Transaction) {
