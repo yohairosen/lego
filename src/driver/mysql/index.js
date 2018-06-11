@@ -88,7 +88,7 @@ export class MysqlDriver {
         })
             .then((result) => {
                 if (!result.rows[0] && !result.fields && result.rowCount !== undefined) {
-                    return result.insertId;
+                    return result.rows.insertId;
                 }
                 else {
                     return result.rows;
