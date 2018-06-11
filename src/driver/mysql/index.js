@@ -65,6 +65,7 @@ export class MysqlDriver {
 
     query(client: Client, text: string, parameters: any[]): Promise<number | any[]> {
         return new Promise((resolve, reject) => {
+
             client.config.queryFormat = queryFormat;
             client.query(text, parameters, (err, result, fields) => {
 
@@ -87,7 +88,7 @@ export class MysqlDriver {
         })
             .then((result) => {
                 if (!result.rows[0] && !result.fields && result.rowCount !== undefined) {
-                    return result.rowCount;
+                    return result.insertId;
                 }
                 else {
                     return result.rows;
